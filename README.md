@@ -395,5 +395,47 @@ The last step might mean a lot of effort, and this might be the point where it i
 
 
 
-## To be continued....
+## Generic control
+I was more than surprised to see that it is possible to use generic controls in other forms.
 
+In the sample [GenericControl](/GenericControl), I defined a generic combobox like this:
+
+~~~~c#
+  public partial class ComboBoxGeneric<TItem> : ComboBox
+    where TItem : BaseClass
+  {
+    public ComboBoxGeneric()
+    {
+      InitializeComponent();
+    }
+
+    public new TItem? SelectedItem
+    {
+      get
+      {
+        return (TItem?)base.SelectedItem;
+      }
+      set
+      {
+        base.SelectedItem = value;
+      }
+    }
+  }
+~~~~
+
+Im my form, I first added a regular ComboBox, then modified the ".Designer.cs" code to use the generic combobox (it did not appear in the toolbox):
+
+~~~~c#
+    private void InitializeComponent()
+    {
+      this.comboBox = new ComboBoxGeneric<ChildClass>();
+      ...
+    }
+
+    private ComboBoxGeneric<ChildClass> comboBox;
+~~~~
+
+Whow, the designer still loads! That was easy.
+
+
+But if you want to open the "ComboBoxGeneric" in designer, you have to apply the workarounds from my first sample. 
