@@ -298,5 +298,102 @@ So, add a new file to the project, containing only this wrapper:
 
 After having designed your form, you could remove the wrapper again. Or you keep it - the workaround might be necessary again later.
 
+
+## Inheritance from generic form (single project)
+The previous sample had separated the generic base form and the non generic child form in two projects. I did this with reason, because it will cause big problems if 
+you place base class and child class in the same project and the base class method `InitializeComponent` also uses a `ComponentResourceManager` and thus loads data from a resx file.
+
+In the sample [GenericFormSubclassResx](/GenericFormSubclassResx), the base class `FormGeneric.cs` contains a picture box, and thus a file "FormGeneric\`1.resx" exists, which contains the image.
+
+To open the child form `FormChilds.cs` we start with the workarounds we know:
+
+* Step 1: Rename resx files with backtick
+* Step 2: add the wrapper:
+  ~~~~c#
+  public class FormGenericWrapper : FormGeneric<ChildClass>
+  {
+  ~~~~
+
+The app will fail to start, because it cannot load the resources. Thats fine.
+
+But wait - the designer for `FormChild` also reports the same error that happens at runtime:
+![Designer error: could not find the resource...](images/designer_error4.png)
+
+The reason is clear: the designer instantiates the parent file, and its `InitializeComponent` contains the code to load the resources from class `FormGeneric<TClass>`.
+So we would have to get rid of this piece of code. 
+
+
+Note: sometimes, the designer does not seem to reload changes to the base class. You might have to restart Visual Studio.
+
+### Simple workaround
+
+The simplest way could be to just comment all usages of the `resources` variable:
+
+~~~~c#
+      //System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(FormGeneric<TClass>));
+      ...
+      // 
+      // pictureBox
+      // 
+      //this.pictureBox.Image = (Image)resources.GetObject("pictureBox.Image");
+      this.pictureBox.Location = new Point(192, 288);
+~~~~
+
+Here, the `PictureBox` in the subclass will be empty, which is not really a problem in my sample. But you might have other apps where
+the resx content of the base class matters for subclasses.
+
+
+### Complex workaround
+
+We will try to get rid of the generics declarations. Unfortunately, the assembly of the project must be compiled so that the designer can load the base class.
+This means that no compilation errors are allowed. 
+
+
+So we apply all steps we already know:
+
+* Step 1: Rename resx files with backtick
+* Step 2: In the file `FormGeneric.cs` of the base class, remove the generic declaration:
+  ~~~~c#
+    //public partial class FormGeneric<TClass> : Form
+    //  where TClass : BaseClass
+    public partial class FormGeneric : Form
+  ~~~~
+* Step 3: in `FormGeneric.Designer.cs`, make two changes:
+  ~~~~c#
+    //partial class FormGeneric<TClass>
+    partial class FormGeneric
+  ~~~~
+
+  and
+
+  ~~~~c#
+        //System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(FormGeneric<TClass>));
+        System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(FormGeneric));
+  ~~~~
+* Step 4: the child form inherits from the now non generic form:
+
+  ~~~~c#
+    public class FormChild : FormGeneric
+    //public class FormChild : FormGeneric<ChildClass>
+  ~~~~
+  
+  We don't need a wrapper here, as we removed the generic stuff.
+* Step 5: fix all compilation errors. My example has a method `FormGeneric.SetItem(TClass item)`. As we removed the generic parameter "TClass" of the class, 
+  we could remove the method itself. This means we have to fix all calling code in the project, too.
+  
+  In my sample, it works to add the generic type parameter to `SetItem`:
+  ~~~~c#
+    public void SetItem<TClass>(TClass item) where TClass : BaseClass
+    //public void SetItem(TClass item)
+    {
+      this.textBoxItem.Text = item.ToString();
+    }
+  ~~~~
+
+The last step might mean a lot of effort, and this might be the point where it is better to give up generic WinForms controls ;-).
+
+
+
+
 ## To be continued....
 
