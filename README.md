@@ -120,7 +120,7 @@ System.Resources.MissingManifestResourceException
 ~~~~
 
 As you can see, .NET tries to load a file "FormGeneric\`1.resources", while the designer resx file is compiled to "FormGeneric.resources".
-The backtick char followed by a number stands for "generic class with n type arguments". If the class had three type parameters, .NET would look for "FormGeneric\`3.resources".
+The backtick char (or grave accent) followed by a number stands for "generic class with n type arguments". If the class had three type parameters, .NET would look for "FormGeneric\`3.resources".
 
 So, duplicate the file "FormGeneric.resx" and name it "FormGeneric\`1.resx". The result should look like this:
 
