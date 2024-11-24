@@ -335,7 +335,7 @@ The simplest way could be to just comment all usages of the `resources` variable
       // 
       // pictureBox
       // 
-      //this.pictureBox.Image = (Image)resources.GetObject("pictureBox.Image");
+      //this.pictureBox.Image = (Image)resources.GetObject("pictureBox.Image");
       this.pictureBox.Location = new Point(192, 288);
 ~~~~
 
