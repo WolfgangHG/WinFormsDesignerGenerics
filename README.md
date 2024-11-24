@@ -120,7 +120,7 @@ System.Resources.MissingManifestResourceException
 ~~~~
 
 As you can see, .NET tries to load a file "FormGeneric\`1.resources", while the designer resx file is compiled to "FormGeneric.resources".
-The backtip char followed by a number stands for "generic class with n type arguments". If the class had three type parameters, .NET would look for "FormGeneric\`3.resources".
+The backtick char followed by a number stands for "generic class with n type arguments". If the class had three type parameters, .NET would look for "FormGeneric\`3.resources".
 
 So, duplicate the file "FormGeneric.resx" and name it "FormGeneric\`1.resx". The result should look like this:
 
@@ -129,7 +129,7 @@ So, duplicate the file "FormGeneric.resx" and name it "FormGeneric\`1.resx". The
 Whenever you make changes to "FormGeneric.resx", you will have to copy the content of this file to "FormGeneric\`1.resx".
 
 
-To open this form in designer, we need three changes:
+To sum it up: In order to open this form in designer, we need three changes:
 
 
 * Step 1: In the main form file, replace this:
@@ -200,7 +200,7 @@ Note: I first observed this error after migrating to .NET6, so it might not happ
 
 There is a workaround:
 * Step 1: rename the file "FormGeneric\`1.resx" so that the filename does not contain any backtick.
-You will have to repeat this for all files in the current project.
+You will have to repeat this for all files with a backtick in the file name in the current project.
 * Step 2: if you have seen the error, you must close Visual Studio and reopen it. Otherwise, the same error will be shown even after 
 applying the workaround. If you applied the workaround before the error was reported, you can open the designer safely.
 
@@ -292,6 +292,7 @@ Move the class code so that it is the first class in the file and try loading th
 
 
 So, add a new file to the project, containing only this wrapper:
+
 ![Generic form wrapper](images/generic_wrapper.png)
 
 
